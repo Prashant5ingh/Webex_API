@@ -1,0 +1,7 @@
+fetching the details
+git clone <url>
+after cloning --> git status
+using cli git
+
+
+just for demo
