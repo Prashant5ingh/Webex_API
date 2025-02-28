@@ -221,6 +221,10 @@ def subscribe_user():
         # When there is no user_email
         if len(person_email)==0:
             return jsonify({"error": "User email not provided"}), 400
+        
+        # When there is no title
+        if len(room_title)==0:
+            return jsonify({"error": "room title not provided"}), 400
  
         room_list=Subscribeuser.find_room_by_title(room_title)
  
@@ -231,9 +235,7 @@ def subscribe_user():
         room = Subscribeuser.create_room(room_title) # Creating the room
         Subscribeuser.add_bot_to_room(room['id'], BOT_EMAIL)  # Add BOT to the room by admin or end user
         a=Subscribeuser.add_users_to_room() # bot adding the user  
-        # if roomid:
-        #  print("bot adding user")
-        #  a=Subscribeuser.add_users_to_room() # bot adding the user
+
         return jsonify({"message":a,'roomTitle': room_title, 'personEmail': person_email})
     except Exception as e:
         logging.error(f"Error in subscribe_user: {e}")
@@ -251,8 +253,9 @@ def send_Message():
         stockPrice = data.get('price')
  
         room_list=sendUpdate.find_room_by_title(room_title)
- 
-        return sendUpdate.sending_stock_update(room_list,companyName,stockPrice)
+        if room_list:
+            return sendUpdate.sending_stock_update(room_list,companyName,stockPrice)
+        return jsonify({"message":"Room doesn't exist"}),400
     except Exception as e:
         logging.error(f"Error in send_Message: {e}")
         raise

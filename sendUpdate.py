@@ -9,6 +9,11 @@ def find_room_by_title(room_title):
     response = requests.get(url, headers=HEADERS)
     rooms = response.json().get('items', [])
     print(rooms)
+
+    data=response.json()
+    if "errors" in data:
+        return jsonify({"error": data["errors"][0]["description"]}), response.status_code
+    
     if response.status_code == 200:
         # Save the room list to a JSON file
         print("going")
@@ -81,6 +86,10 @@ def sending_stock_update(room_title, companyName, stockPrice):
     print("data sending to the API, Roomtitle", room_title, "text", stockPrice, "attachments",json_body)
     data = {'roomId': room_title, 'text': "Testing the bot at 2:47", 'attachments':json_body}
     response = requests.post(url, headers=HEADERS_BOT, json=data)
+
+    # data1=response.json()
+    # if "errors" in data1:
+    #     return jsonify({"error": data1["errors"][0]["description"]}), response.status_code
    
     print("ifresponse.status_code :  ",response.status_code)
 

@@ -110,6 +110,11 @@ def delete_user_from_room():
         url = f'{WEBEX_API_URL}/rooms'
         params = {'max': 100}
         response = requests.get(url, headers=HEADERS, params=params)
+
+        data=response.json()
+        if "errors" in data:
+             return jsonify({"error": data["errors"][0]["description"]}), response.status_code
+
         data_rooms = response.json().get('items', [])
         #   print("Data is printing",data) 
           

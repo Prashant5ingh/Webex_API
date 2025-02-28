@@ -6,6 +6,26 @@ from config import HEADERS,HEADERS_BOT,WEBEX_API_URL
 
 
 
+ 
+# Check if user is in the organization
+def check_user_in_oragnization(person_email):
+    print("pemail",person_email)
+    response = requests.get(f"{WEBEX_API_URL}/people", headers=HEADERS, verify=True)
+
+    data=response.json()
+    if "errors" in data:
+        return jsonify({"error": data["errors"][0]["description"]}), response.status_code
+
+    response_json = response.json()
+    # print("Response JSON: ", response_json)
+    list_data = response_json.get('items', [])
+    # print("people in the organization : ", response)
+    # list_data = response.json()['items']
+ 
+    email_list = [item['emails'][0] for item in list_data]  # Extract emails from each item
+   
+    return person_email in email_list
+
 def find_room_by_title(room_title):
     #Listing webex room details 
 
@@ -70,9 +90,9 @@ def add_bot_to_room(room_id, person_email):
     data = {'roomId': room_id, 'personEmail': person_email}
     response = requests.post(url, headers=HEADERS, json=data)
 
-    data=response.json()
-    if "errors" in data:
-        return jsonify({"error": data["errors"][0]["description"]}), response.status_code
+    data1=response.json()
+    if "errors" in data1:
+        return jsonify({"error": data1["errors"][0]["description"]}), response.status_code
 
     return response.json()
 
@@ -91,9 +111,9 @@ def add_users_to_room():
         #   print("Data is printing",data) 
           
         room_title = request.json.get("title")
+        
         room_ID = request.json.get('id')  # ID needed to add user to the specific room
         print("rID from postman",room_ID)
-
 
         user_emails=[request.json.get("personEmail")]
 
@@ -116,7 +136,15 @@ def add_users_to_room():
         # #When there is no user_email
         # if user_emails is None:
         #     return jsonify({"error": "User email not provided"}), 400
+        
 
+        user_mails = request.json.get("personEmail")
+
+        # Check if user is in the organization
+        if not check_user_in_oragnization(user_mails):
+            
+               return "User is from outside the organization"
+        print("out valid")
         print("room id",room_id)
         # Get existing room members
 
